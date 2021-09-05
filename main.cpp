@@ -74,13 +74,13 @@ int main() {
                     break;
                 }
             }
-        } else if(NewEvi <= -1 && NewEvi >= -7) {
-            //If negative, add to impossible evidence
+        } else if(NewEvi <= -1 && NewEvi >= -7) { //If negative, add to impossible evidence
             isInvalid = false;
-            if(Impossible[abs(NewEvi)-1]) {
-                Impossible[abs(NewEvi)-1] = false;
+            NewEvi = abs(NewEvi); //Make NewEvi range from 1-7; the evidence displayed
+            if(Impossible[NewEvi-1]) {
+                Impossible[NewEvi-1] = false;
             } else {
-                Impossible[abs(NewEvi)-1] = true;
+                Impossible[NewEvi-1] = true;
             }
         } else if(Input == "restart") {
             for(int c = 0; c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) {
@@ -110,7 +110,7 @@ void DrawGUI() {
     cout << "Impossible evidence:  ";
     for(int e = 0; e < sizeof(Impossible)/sizeof(Impossible[0]); e++) {
         if(Impossible[e]) {
-            cout << Evidences[Impossible[e]] + ", ";
+            cout << Evidences[e] + ", ";
         }
     }
     cout << "\b\b \n";
@@ -179,35 +179,33 @@ void DrawGUI() {
 }
 
 void GetGhosts() {
-    for (int b = 0; b < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); b++) {
+    for (int b = 0; b < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); b++) { //Sæt alle spøgelser til mulige
         PossibleGhosts[b] = true;
     }
-    //Loop gennem alle spøgelsestyper
-    for(int i = 0; i < sizeof(GhostTypes)/sizeof(GhostTypes[0]); i++) {
-        //----NOTE---- for loop kører ikke når der ikke er inputtet noget confirmed evidence
-        for(int e = 0; Confirmed[e] != -1 && e < sizeof(Confirmed)/sizeof(Confirmed[0]); e++) {
-            //Find out if the current ghost type has the current confirmed evidence
-            bool hasEvi = false;
-
-            //Loop gennem current ghost's evidences/values
-            for(int h = 0; h < sizeof(GhostTypes[i].Values)/sizeof(GhostTypes[i].Values[0]); h++) {
-                //Hvis vi finder current confirmed evidence er spøgelset possible
-                if(GhostTypes[i].Values[h] == Confirmed[e]) {
-                    hasEvi = true;
-                    PosGhosts += 1;
-                }
-            }
-
-            //If it doesn't have the evidence, the ghost is not possible, and the next ghost will be checked
-            if(!hasEvi) {
+    for(int i = 0; i < sizeof(GhostTypes)/sizeof(GhostTypes[0]); i++) {                         //Loop gennem alle spøgelsestyper
+        for(int b = 0; b < sizeof(GhostTypes[i].Values)/sizeof(GhostTypes[i].Values[0]); b++) { //Loop gennem current spøgelses evidences for at tjekke ban
+            if(Impossible[GhostTypes[i].Values[b]]) {
                 PossibleGhosts[i] = false;
-                break;
             }
         }
+    }
+    for(int e = 0; e < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); e++) {
+        if(PossibleGhosts[e]) { //Led efter confirmed evidence her
+            for(int c = 0; Confirmed[c] != -1 && c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) { //Loop gennem confirmed evidence
+                //Note, spøgelse skal have alle confirmed evidence før det tæller
+                bool hasEvi = false; //Has current evidence
+                for(int g = 0; g < sizeof(GhostTypes[e].Values)/sizeof(GhostTypes[e].Values[0]); g++) {
+                    if(GhostTypes[e].Values[g] == Confirmed[c]) {
+                        hasEvi = true;
+                        break;
+                    }
+                }
 
-        //I tilfældet af, at der ikke er confirmed evidence:
-        if(Confirmed[0] == -1) {
-            PosGhosts = sizeof(GhostTypes)/sizeof(GhostTypes[0]);
+                if(!hasEvi) {
+                    PossibleGhosts[e] = false;
+                    break;
+                }
+            }
         }
     }
 }
