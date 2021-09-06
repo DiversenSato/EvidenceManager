@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <math.h>
 #include "Ghost.h"
 using namespace std;
 //                       0         1              2               3              4                 5                     6
@@ -127,12 +128,18 @@ void DrawGUI() {
         //If the ghost is possible, print it along with non-confirmed evidence
         if(PossibleGhosts[i]) {
             //Print ghost.name + ": "
-            cout << GhostTypes[i].Name + ": ";
+            cout << GhostTypes[i].Name << ":";
+            int nameLength = GhostTypes[i].Name.length() + 1;
+            int curIndent = ceil(nameLength/8);
+            int tarIndent = 3;
+            for(int d = 0; d < tarIndent-curIndent; d++) {
+                cout << "\t";
+            }
             
             //Loop through every evidence of current ghost and print non confirmed
             for(int e = 0; e < sizeof(GhostTypes[i].Values)/sizeof(GhostTypes[i].Values[0]); e++) {
                 if(!InArr(Confirmed, GhostTypes[i].Values[e])) {
-                    cout << Evidences[GhostTypes[i].Values[e]] + ", ";
+                    cout << Evidences[GhostTypes[i].Values[e]] + ",\t";
                 }
             }
             cout << "\b\b \n";
