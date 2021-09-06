@@ -85,6 +85,9 @@ int main() {
             for(int c = 0; c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) {
                 Confirmed[c] = -1;
             }
+            for(int c = 0; c < sizeof(Impossible)/sizeof(Impossible[0]); c++) {
+                Impossible[c] = false;
+            }
         } else {
             isInvalid = true;
         }
@@ -156,15 +159,15 @@ void DrawGUI() {
     }
     for(int i = 0; i < sizeof(PosEvidences)/sizeof(PosEvidences[0]); i++) {
         if(PosEvidences[i]) {
-            float EviOcc = (float)EvidenceOccurances[i] / (float)PosGhosts;
+            float Chance = (float)EvidenceOccurances[i] / (float)PosGhosts;
 
-            if(EviOcc <= HChance) {
+            if(Chance <= HChance) {
                 cout << "\033[1;32m";
             }
-            if(EviOcc <= lerp(LChance, HChance, 0.67)) {
+            if(Chance <= lerp(LChance, HChance, 0.67)) {
                 cout << "\033[01;33m";
             }
-            if(EviOcc < lerp(LChance, HChance, 0.33)) {
+            if(Chance < lerp(LChance, HChance, 0.33)) {
                 cout << "\033[1;31m";
             }
 
@@ -224,10 +227,8 @@ void GetEviAmount() {
     for(int i = 0; i < sizeof(EvidenceOccurances)/sizeof(EvidenceOccurances[0]); i++) {
         EvidenceOccurances[i] = 0;
     }
-    for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
-        if(PossibleGhosts[i]) {
-            PosEvidences[i] = false;
-        }
+    for(int i = 0; i < sizeof(PosEvidences)/sizeof(PosEvidences[0]); i++) {
+        PosEvidences[i] = false;
     }
 
     for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
