@@ -18,7 +18,6 @@ void DrawGUI();
 
 void GetGhosts();
 void GetEviAmount();
-void GetPosEvi();
 
 int main() {
     GhostTypes[0].Set("Banshee", 3, 2, 6);
@@ -76,11 +75,11 @@ int main() {
             }
         } else if(NewEvi <= -1 && NewEvi >= -7) { //If negative, add to impossible evidence
             isInvalid = false;
-            NewEvi = abs(NewEvi); //Make NewEvi range from 1-7; the evidence displayed
-            if(Impossible[NewEvi-1]) {
-                Impossible[NewEvi-1] = false;
+            NewEvi = abs(NewEvi)-1; //Make NewEvi range from 0-6; the evidence displayed
+            if(Impossible[NewEvi]) {
+                Impossible[NewEvi] = false;
             } else {
-                Impossible[NewEvi-1] = true;
+                Impossible[NewEvi] = true;
             }
         } else if(Input == "restart") {
             for(int c = 0; c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) {
@@ -137,11 +136,10 @@ void DrawGUI() {
         }
     }
 
-    GetPosEvi();
-
     //
     //  Print every possible evidence
     //
+    MakeLine();
     cout << "Possible remaining evidence:\n";
     //Find highest and lowest chance
     float HChance = 0;
@@ -170,7 +168,7 @@ void DrawGUI() {
                 cout << "\033[1;31m";
             }
 
-            cout << to_string(i+1) + ". " + Evidences[i] + "\n";
+            cout << to_string(i+1) + ". " + Evidences[i] << " " << EvidenceOccurances[i] << "/" << PosGhosts << "\n";
         }
     }
     cout << "\033[0m";
@@ -189,48 +187,59 @@ void GetGhosts() {
             }
         }
     }
-    for(int e = 0; e < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); e++) {
+    for(int e = 0; e < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); e++) { //Loop gennem mulige spøgelser
         if(PossibleGhosts[e]) { //Led efter confirmed evidence her
-            for(int c = 0; Confirmed[c] != -1 && c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) { //Loop gennem confirmed evidence
-                //Note, spøgelse skal have alle confirmed evidence før det tæller
-                bool hasEvi = false; //Has current evidence
-                for(int g = 0; g < sizeof(GhostTypes[e].Values)/sizeof(GhostTypes[e].Values[0]); g++) {
-                    if(GhostTypes[e].Values[g] == Confirmed[c]) {
-                        hasEvi = true;
+            for(int c = 0; c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) { //Loop gennem confirmed evidence
+                if(Confirmed[c] != -1) {
+                    //Note, spøgelse skal have alle confirmed evidence før det tæller
+                    bool hasEvi = false; //Has current evidence
+                    for(int g = 0; g < sizeof(GhostTypes[e].Values)/sizeof(GhostTypes[e].Values[0]); g++) {
+                        if(GhostTypes[e].Values[g] == Confirmed[c]) {
+                            hasEvi = true;
+                            break;
+                        }
+                    }
+
+                    if(!hasEvi) {
+                        PossibleGhosts[e] = false;
                         break;
                     }
-                }
-
-                if(!hasEvi) {
-                    PossibleGhosts[e] = false;
-                    break;
                 }
             }
         }
     }
+
+    PosGhosts = 0;
+    //Loop gennem PossibleGhosts[] for at finde PosGhosts
+    for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
+        if(PossibleGhosts[i]) {
+            PosGhosts++;
+        }
+    }
+
 }
 
 void GetEviAmount() {
+    //Set EvidenceOccurances til 0
+    for(int i = 0; i < sizeof(EvidenceOccurances)/sizeof(EvidenceOccurances[0]); i++) {
+        EvidenceOccurances[i] = 0;
+    }
+    for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
+        if(PossibleGhosts[i]) {
+            PosEvidences[i] = false;
+        }
+    }
+
     for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
         //If ghost is possible, then log evidence
         if(PossibleGhosts[i]) {
             for(int j = 0; j < sizeof(GhostTypes[i].Values)/sizeof(GhostTypes[i].Values[0]); j++) {
                 EvidenceOccurances[GhostTypes[i].Values[j]]++;
+                PosEvidences[GhostTypes[i].Values[j]] = true;
             }
         }
     }
-}
 
-void GetPosEvi() {
-    MakeLine();
-    //Check every possible ghost for it's evidences
-    for(int i = 0; i < sizeof(PossibleGhosts)/sizeof(PossibleGhosts[0]); i++) {
-        if(PossibleGhosts[i]) {
-            PosEvidences[GhostTypes[i].Values[0]] = true;
-            PosEvidences[GhostTypes[i].Values[1]] = true;
-            PosEvidences[GhostTypes[i].Values[2]] = true;
-        }
-    }
     //Remove confirmed evidence from PosEvidences
     for(int c = 0; c < sizeof(Confirmed)/sizeof(Confirmed[0]); c++) {
         if(Confirmed[c] != -1) {
