@@ -16,7 +16,6 @@ int EvidenceOccurances[7] = {0, 0, 0, 0, 0, 0, 0};
 Ghost GhostTypes[16];
 
 void DrawGUI();
-
 void GetGhosts();
 void GetEviAmount();
 
@@ -131,7 +130,7 @@ void DrawGUI() {
             cout << GhostTypes[i].Name << ":";
             int nameLength = GhostTypes[i].Name.length() + 1;
             int curIndent = ceil(nameLength/8);
-            int tarIndent = 3;
+            int tarIndent = 2;
             for(int d = 0; d < tarIndent-curIndent; d++) {
                 cout << "\t";
             }

@@ -6,10 +6,6 @@ class Ghost {
         string Name;
         int Values[3];
         
-        Ghost() {
-
-        }
-
         void Set(string name, int val1, int val2, int val3) {
             Name = name;
             Values[0] = val1;
