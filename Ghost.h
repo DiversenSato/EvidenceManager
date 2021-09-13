@@ -1,6 +1,3 @@
-#include <string>
-using namespace std;
-
 class Ghost {
     public:
         string Name;
